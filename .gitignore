@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Python
+/migration_tool/.venv/
+**/__pycache__/
