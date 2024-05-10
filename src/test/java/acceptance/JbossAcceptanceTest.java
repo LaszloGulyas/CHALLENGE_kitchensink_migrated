@@ -1,23 +1,24 @@
 package acceptance;
 
 import com.laszlogulyas.kitchensink_migrated.KitchensinkMigratedApplication;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = KitchensinkMigratedApplication.class)
-@Disabled
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@ContextConfiguration(classes = KitchensinkMigratedApplication.class)
 public class JbossAcceptanceTest {
 
     private static final String BASE_URL_MEMBERS = "http://localhost:8080/kitchensink/rest/members";
@@ -61,7 +62,8 @@ public class JbossAcceptanceTest {
 
     @Test
     public void testCreateNewUserOK() {
-        Map<String, Object> request = Map.of("name", "Test Test", "email", "test123@test.test", "phoneNumber", "1231231230");
+        String randomEmailAddress = UUID.randomUUID().toString().replace("-", "") + "@test.test";
+        Map<String, Object> request = Map.of("name", "Test Test", "email", randomEmailAddress, "phoneNumber", "1231231230");
 
         ResponseEntity<String> responseEntity = restTemplate.postForEntity(BASE_URL_MEMBERS, request, String.class);
 
