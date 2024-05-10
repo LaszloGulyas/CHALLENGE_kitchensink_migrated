@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <title>kitchensink</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" th:href="@{/css/screen.css}" />
+</head>
+<body>
+
+<div id="container">
+    <div class="dualbrand">
+        <img th:src="@{/gfx/spring_framework_logo.png}" width="300" height="175"  alt="logo"/>
+    </div>
+    <div id="content">
+
+        <main>
+            <h1>Welcome to Spring Boot!</h1>
+
+            <div>
+                <p>You have successfully deployed a Spring Boot and Thymeleaf application.</p>
+            </div>
+
+            <form id="reg" th:object="${newMember}" th:action="@{/kitchensink/register}" method="post">
+                <h2>Member Registration</h2>
+                <p>Enforces annotation-based constraints defined on the model class.</p>
+                <table class="titleCell">
+                    <tr>
+                        <td><label for="name">Name:</label></td>
+                        <td><input type="text" id="name" th:field="*{name}" /></td>
+                        <td><span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="invalid"></span></td>
+                    </tr>
+                    <tr>
+                        <td><label for="email">Email:</label></td>
+                        <td><input type="text" id="email" th:field="*{email}" /></td>
+                        <td><span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="invalid"></span></td>
+                    </tr>
+                    <tr>
+                        <td><label for="phoneNumber">Phone #:</label></td>
+                        <td><input type="text" id="phoneNumber" th:field="*{phoneNumber}" /></td>
+                        <td><span th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}" class="invalid"></span></td>
+                    </tr>
+                </table>
+
+                <table>
+                    <tr>
+                        <td>
+                            <p>
+                            <button type="submit" id="register" class="register">Register</button>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>
+                            <span th:if="${#fields.hasErrors()}" class="messages invalid">Please correct the problems below and resubmit.</span>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+
+            <h2>Members</h2>
+            <div th:if="${members.isEmpty()}">
+                <em>No registered members.</em>
+            </div>
+            <table th:unless="${members.isEmpty()}" class="simpletablestyle">
+                <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone #</th>
+                    <th>REST URL</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="member : ${members}">
+                    <td th:text="${member.id}"></td>
+                    <td th:text="${member.name}"></td>
+                    <td th:text="${member.email}"></td>
+                    <td th:text="${member.phoneNumber}"></td>
+                    <td>
+                        <a th:href="@{'/kitchensink/rest/members/' + ${member.id}}" th:text="@{'/kitchensink/rest/members/' + ${member.id}}"></a>
+                    </td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="5">
+                        REST URL for all members:
+                        <a th:href="@{/kitchensink/rest/members}">/kitchensink/rest/members</a>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </main>
+
+    </div>
+    <div id="aside">
+        <p>Learn more about Spring, Spring Boot and Thymeleaf.</p>
+        <ul>
+            <li><a href="https://spring.io/projects/spring-boot">Spring Boot Documentation</a></li>
+            <li><a href="https://www.thymeleaf.org/documentation.html">Thymeleaf Documentation</a></li>
+        </ul>
+    </div>
+    <div id="footer">
+        <p>
+            This project was created by Laszlo Gulyas.<br />
+        </p>
+    </div>
+</div>
+
+
+</body>
+</html>
