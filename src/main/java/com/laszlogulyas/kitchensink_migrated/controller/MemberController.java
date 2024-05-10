@@ -3,6 +3,10 @@ package com.laszlogulyas.kitchensink_migrated.controller;
 import com.laszlogulyas.kitchensink_migrated.data.MemberRepository;
 import com.laszlogulyas.kitchensink_migrated.model.Member;
 import com.laszlogulyas.kitchensink_migrated.service.MemberRegistration;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ValidationException;
@@ -29,11 +33,16 @@ public class MemberController {
     private final MemberRegistration registration;
 
     @GetMapping
+    @Operation(summary = "List all members", description = "Retrieve a list of all members sorted by name in ascending order")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved list")
     public List<Member> listAllMembers() {
         return repository.findAllByOrderByNameAsc();
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Lookup member by ID", description = "Find a member by their ID")
+    @ApiResponse(responseCode = "200", description = "Member found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Member.class)))
+    @ApiResponse(responseCode = "404", description = "Member not found")
     public Member lookupMemberById(@PathVariable("id") long id) {
         Optional<Member> member = repository.findById(id);
         if (member.isEmpty()) {
@@ -43,6 +52,10 @@ public class MemberController {
     }
 
     @PostMapping
+    @Operation(summary = "Create a new member", description = "Register a new member with all mandatory fields")
+    @ApiResponse(responseCode = "200", description = "Member registered successfully")
+    @ApiResponse(responseCode = "400", description = "Bad request due to input validation failure")
+    @ApiResponse(responseCode = "409", description = "Conflict - Email already exists")
     public ResponseEntity<Map<String, String>> createMember(@RequestBody Member member) {
         try {
             validateMember(member);
