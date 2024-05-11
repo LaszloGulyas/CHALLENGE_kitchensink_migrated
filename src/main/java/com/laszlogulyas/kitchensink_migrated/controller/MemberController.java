@@ -13,6 +13,7 @@ import jakarta.validation.ValidationException;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,8 +44,8 @@ public class MemberController {
     @Operation(summary = "Lookup member by ID", description = "Find a member by their ID")
     @ApiResponse(responseCode = "200", description = "Member found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Member.class)))
     @ApiResponse(responseCode = "404", description = "Member not found")
-    public Member lookupMemberById(@PathVariable("id") long id) {
-        Optional<Member> member = repository.findById(id);
+    public Member lookupMemberById(@PathVariable("id") String id) {
+        Optional<Member> member = repository.findById(new ObjectId(id));
         if (member.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found");
         }

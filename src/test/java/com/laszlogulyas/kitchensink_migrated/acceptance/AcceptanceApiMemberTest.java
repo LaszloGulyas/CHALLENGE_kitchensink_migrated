@@ -1,14 +1,15 @@
-package acceptance;
+package com.laszlogulyas.kitchensink_migrated.acceptance;
 
-import com.laszlogulyas.kitchensink_migrated.KitchensinkMigratedApplication;
+import com.laszlogulyas.kitchensink_migrated.model.Member;
+import org.bson.Document;
+import org.bson.types.ObjectId;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 import java.util.Map;
@@ -16,18 +17,27 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@ContextConfiguration(classes = KitchensinkMigratedApplication.class)
-public class JbossAcceptanceTest {
+@ActiveProfiles("test")
+public class AcceptanceApiMemberTest extends AbstractAcceptanceTest {
 
     private static final String BASE_URL_MEMBERS = "http://localhost:8080/kitchensink/rest/members";
+    private static final Member TEST_MEMBER = new Member(
+            "663f504e9388508823166a61",
+            "John Smith",
+            "john.smith@mailinator.com",
+            "2125551212"
+    );
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    @BeforeAll
+    public static void setup() {
+        insertTestMemberDocument();
+    }
 
     @Test
     public void testGetSampleUser() {
-        String url = BASE_URL_MEMBERS + "/0";
+        String url = BASE_URL_MEMBERS + "/" + TEST_MEMBER.getId();
         ParameterizedTypeReference<Map<String, Object>> responseType = new ParameterizedTypeReference<>() {
         };
 
@@ -36,10 +46,10 @@ public class JbossAcceptanceTest {
         Map<String, Object> actualResponse = actualResponseEntity.getBody();
         assertAll(
                 () -> assertEquals(HttpStatus.OK, actualResponseEntity.getStatusCode()),
-                () -> assertEquals(0, actualResponse.get("id")),
-                () -> assertEquals("John Smith", actualResponse.get("name")),
-                () -> assertEquals("john.smith@mailinator.com", actualResponse.get("email")),
-                () -> assertEquals("2125551212", actualResponse.get("phoneNumber"))
+                () -> assertEquals(TEST_MEMBER.getId(), actualResponse.get("id")),
+                () -> assertEquals(TEST_MEMBER.getName(), actualResponse.get("name")),
+                () -> assertEquals(TEST_MEMBER.getEmail(), actualResponse.get("email")),
+                () -> assertEquals(TEST_MEMBER.getPhoneNumber(), actualResponse.get("phoneNumber"))
         );
     }
 
@@ -68,5 +78,13 @@ public class JbossAcceptanceTest {
         ResponseEntity<String> responseEntity = restTemplate.postForEntity(BASE_URL_MEMBERS, request, String.class);
 
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+    }
+
+    private static void insertTestMemberDocument() {
+        Document testDocument = new Document("_id", new ObjectId(TEST_MEMBER.getId()));
+        testDocument.put("name", TEST_MEMBER.getName());
+        testDocument.put("email", TEST_MEMBER.getEmail());
+        testDocument.put("phone_number", TEST_MEMBER.getPhoneNumber());
+        mongoTemplate.getCollection("member").insertOne(testDocument);
     }
 }
