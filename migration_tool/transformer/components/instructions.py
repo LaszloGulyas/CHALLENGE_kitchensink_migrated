@@ -10,6 +10,7 @@ INSTRUCTION_PRINT_ONLY_CODE = "Print the result code of this class and embed it 
 
 
 class InstructionType(Enum):
+    DEFAULT = 0
     CONTROLLER = 1
     MODEL = 2
     REPOSITORY = 3
@@ -17,6 +18,8 @@ class InstructionType(Enum):
 
     @staticmethod
     def generate_instructions(instruction_type, input_class_name):
+        if instruction_type == InstructionType.DEFAULT:
+            return None
         if instruction_type == InstructionType.CONTROLLER:
             return [INSTRUCTION_USE_LOMBOK_FOR_CONSTRUCTORS + " and " + INSTRUCTION_USE_LOMBOK_FOR_LOGGING]
         elif instruction_type == InstructionType.MODEL:
@@ -30,3 +33,10 @@ class InstructionType(Enum):
             return [INSTRUCTION_USE_JPA_REPOS,
                     INSTRUCTION_USE_LOMBOK_FOR_CONSTRUCTORS + " and " + INSTRUCTION_USE_LOMBOK_FOR_LOGGING,
                     INSTRUCTION_PRINT_ONLY_CODE + input_class_name]
+
+    @classmethod
+    def from_name(cls, name):
+        for instruction_name, instruction_value in cls._member_map_.items():
+            if instruction_name == name:
+                return instruction_value
+        return None

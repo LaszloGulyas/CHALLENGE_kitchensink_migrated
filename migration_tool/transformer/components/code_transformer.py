@@ -2,7 +2,7 @@ import os
 
 from openai import OpenAI
 
-from migration_tool.transformer.components.instructions import *
+from components.instructions import *
 
 
 class CodeTransformer:
