@@ -13,7 +13,7 @@ COPY pom.xml .
 COPY src src
 
 # Build the application using Maven
-RUN ./mvnw clean package -DskipTests
+RUN ./mvnw clean package -DrunUnitTests=true
 
 # Expose the port the app runs on
 EXPOSE 8080
