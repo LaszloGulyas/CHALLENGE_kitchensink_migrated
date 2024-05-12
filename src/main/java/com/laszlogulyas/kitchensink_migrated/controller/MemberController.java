@@ -1,8 +1,7 @@
 package com.laszlogulyas.kitchensink_migrated.controller;
 
-import com.laszlogulyas.kitchensink_migrated.data.MemberRepository;
 import com.laszlogulyas.kitchensink_migrated.model.Member;
-import com.laszlogulyas.kitchensink_migrated.service.MemberRegistration;
+import com.laszlogulyas.kitchensink_migrated.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,7 +12,6 @@ import jakarta.validation.ValidationException;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,14 +28,13 @@ import java.util.*;
 public class MemberController {
 
     private final Validator validator;
-    private final MemberRepository repository;
-    private final MemberRegistration registration;
+    private final MemberService memberService;
 
     @GetMapping
     @Operation(summary = "List all members", description = "Retrieve a list of all members sorted by name in ascending order")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved list")
     public List<Member> listAllMembers() {
-        return repository.findAllByOrderByNameAsc();
+        return memberService.getAllMembers();
     }
 
     @GetMapping("/{id}")
@@ -45,7 +42,7 @@ public class MemberController {
     @ApiResponse(responseCode = "200", description = "Member found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Member.class)))
     @ApiResponse(responseCode = "404", description = "Member not found")
     public Member lookupMemberById(@PathVariable("id") String id) {
-        Optional<Member> member = repository.findById(new ObjectId(id));
+        Optional<Member> member = memberService.getMemberById(id);
         if (member.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found");
         }
@@ -60,7 +57,7 @@ public class MemberController {
     public ResponseEntity<Map<String, String>> createMember(@RequestBody Member member) {
         try {
             validateMember(member);
-            registration.register(member);
+            memberService.register(member);
             return ResponseEntity.ok().build();
         } catch (ConstraintViolationException ce) {
             return createViolationResponse(ce.getConstraintViolations());
@@ -80,7 +77,7 @@ public class MemberController {
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(new HashSet<>(violations));
         }
-        if (emailAlreadyExists(member.getEmail())) {
+        if (memberService.checkEmailAlreadyExists(member)) {
             throw new ValidationException("Unique Email Violation");
         }
     }
@@ -92,10 +89,5 @@ public class MemberController {
             responseObj.put(violation.getPropertyPath().toString(), violation.getMessage());
         }
         return ResponseEntity.badRequest().body(responseObj);
-    }
-
-    public boolean emailAlreadyExists(String email) {
-        Member member = repository.findByEmail(email);
-        return member != null;
     }
 }
