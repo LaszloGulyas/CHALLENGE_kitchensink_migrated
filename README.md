@@ -26,7 +26,7 @@ After successful startup the application can be checked on the following endpoin
   - Running Docker
   - Ports are available to use: 8080, 27017
   - Internet connection (to pull required docker images)
-- Start the project with the following command from root folder:
+- Start the project with the following command from project root folder:
   - `docker-compose -f docker-compose.yml up -d --build`
     - This will pull MongoDB, OpenJDK 21 images
     - Build the project within OpenJDK container
@@ -39,7 +39,7 @@ After successful startup the application can be checked on the following endpoin
   - JDK 21 installed
   - Running MongoDB server on localhost:27017
   - Ports are available to use: 8080
-- Start the project with the following command from root folder:
+- Start the project with the following command from project root folder:
   - `./mvnw clean package -DrunUnitTests=true`
   - `java -jar target/kitchensink_migrated-0.0.1-SNAPSHOT.jar`
 - Notes for MongoDB connection:
@@ -57,3 +57,18 @@ After successful startup the application can be checked on the following endpoin
 - Actuator endpoints:
   - http://localhost:8080/actuator
   - http://localhost:8080/actuator/health
+
+## Regression / Acceptance testing
+There is an acceptance test package that is based on the REST functionalities, behaviour of the original Kitchensink JBoss application.
+In order to run the package:
+- Requirements:
+  - JDK 21 installed
+  - Running Docker
+  - Ports are available to use: 8080, 27017
+- Start tests with the following command from project root :
+  - `./mvnw clean test -DrunAcceptanceTests=true`
+
+This test uses Testcontainer framework and  creates temporary Docker containers for the Spring application and MongoDB.
+
+## Further project components
+In `migration_tool` folder a `transformer` python app is located that supports JavaEE - Spring Boot 3 code conversion with ChatGPT 4. For  more details check [README_TRANSFORMER.md](migration_tool%2Ftransformer%2FREADME_TRANSFORMER.md)
